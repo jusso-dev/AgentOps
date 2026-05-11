@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Repository {
+  id            String         @id @default(cuid())
+  owner         String
+  name          String
+  fullName      String         @unique
+  description   String?
+  url           String?
+  importedAt    DateTime       @default(now())
+  issues        Issue[]
+  pullRequests  PullRequest[]
+  commits       Commit[]
+  releases      Release[]
+  triageReports TriageReport[]
+  changelogs    Changelog[]
+}
+
+model Issue {
+  id           String     @id @default(cuid())
+  githubId     String
+  number       Int
+  title        String
+  body         String?
+  state        String
+  labels       String
+  author       String?
+  url          String?
+  createdAt    DateTime
+  updatedAt    DateTime
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, githubId])
+}
+
+model PullRequest {
+  id           String     @id @default(cuid())
+  githubId     String
+  number       Int
+  title        String
+  body         String?
+  state        String
+  author       String?
+  url          String?
+  mergedAt     DateTime?
+  createdAt    DateTime
+  updatedAt    DateTime
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, githubId])
+}
+
+model Commit {
+  id           String     @id @default(cuid())
+  sha          String
+  message      String
+  author       String?
+  url          String?
+  committedAt  DateTime
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, sha])
+}
+
+model Release {
+  id           String     @id @default(cuid())
+  githubId     String
+  tagName      String
+  name         String?
+  body         String?
+  url          String?
+  publishedAt  DateTime?
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, githubId])
+}
+
+model TriageReport {
+  id                 String     @id @default(cuid())
+  issueNumber        Int
+  issueTitle         String
+  type               String
+  priority           String
+  risk               String
+  suggestedLabels    String
+  summary            String
+  nextAction         String
+  implementationPlan String
+  createdAt          DateTime   @default(now())
+  repositoryId       String
+  repository         Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}
+
+model Changelog {
+  id           String     @id @default(cuid())
+  title        String
+  markdown     String
+  startDate    DateTime
+  endDate      DateTime
+  createdAt    DateTime   @default(now())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}

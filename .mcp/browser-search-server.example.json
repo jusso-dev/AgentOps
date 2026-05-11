@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "browser-search": {
+      "command": "npx",
+      "args": ["-y", "example-browser-search-mcp-server"],
+      "env": {
+        "SEARCH_API_KEY": "${SEARCH_API_KEY}"
+      }
+    }
+  }
+}
